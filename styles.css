@@ -54,6 +54,7 @@ button:hover {
 ul {
     list-style-type: none;
     padding: 0;
+    margin-top: 20px;
 }
 
 li {
@@ -64,9 +65,39 @@ li {
     cursor: pointer;
     position: relative;
     touch-action: manipulation; /* 优化触摸事件 */
+    transition: transform 0.3s ease; /* 添加滑动动画 */
 }
 
 li.completed {
     text-decoration: line-through;
     color: #888;
+}
+
+/* 滑动删除时的背景效果 */
+li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: #ff4d4d; /* 滑动时的背景色 */
+    transform: translateX(-100%); /* 初始状态隐藏 */
+    transition: transform 0.3s ease; /* 添加滑动动画 */
+    border-radius: 4px;
+}
+
+li.swiped::after {
+    transform: translateX(0); /* 滑动时显示 */
+}
+
+/* 滑动删除时的文字效果 */
+li.swiped {
+    color: #fff; /* 文字颜色变为白色 */
+    background-color: #ff4d4d; /* 背景色变为红色 */
+}
+
+li.swiped .task-text {
+    opacity: 0; /* 滑动时文字逐渐消失 */
+    transition: opacity 0.3s ease;
 }
