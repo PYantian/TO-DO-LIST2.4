@@ -40,41 +40,62 @@ function addTask(taskText, isCompleted = false) {
     }
 
     // 短按：标记任务为完成（划线效果）或移动到最前面
-    let isClick = false; // 标记是否为点击事件
-    li.addEventListener('click', function() {
-        if (!isClick) return; // 如果不是点击事件，直接返回
-        li.classList.toggle('completed');
-        if (li.classList.contains('completed')) {
-            taskList.appendChild(li);
-        } else {
-            taskList.insertBefore(li, taskList.firstChild);
-        }
-        saveTasks();
-    });
+    // 左滑或右滑：删除任务
+    let isClick = true; // 默认是点击事件
+    let touchStartX = 0;
+    let touchStartY = 0;
 
-    // 长按删除任务
-    let pressTimer;
     li.addEventListener('touchstart', function(e) {
-        pressTimer = setTimeout(function() {
-            taskList.removeChild(li);
-            saveTasks();
-        }, 1000); // 长按 1 秒后删除
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        isClick = true; // 标记为点击事件
     });
 
     li.addEventListener('touchend', function(e) {
-        clearTimeout(pressTimer);
-        isClick = true; // 标记为点击事件
-        setTimeout(function() {
-            isClick = false; // 重置标记
-        }, 100); // 延迟 100 毫秒触发点击事件
-    });
+        const touch = e.changedTouches[0];
+        const touchEndX = touch.clientX;
+        const touchEndY = touch.clientY;
 
-    li.addEventListener('touchcancel', function(e) {
-        clearTimeout(pressTimer);
+        // 计算滑动距离
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        // 如果滑动距离较大，则认为是滑动操作，不是点击
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            isClick = false; // 标记为滑动事件
+
+            // 判断是左滑还是右滑
+            if (diffX > 0) {
+                // 右滑
+                deleteTask(li);
+            } else {
+                // 左滑
+                deleteTask(li);
+            }
+        }
+
+        // 如果是点击事件，切换任务完成状态
+        if (isClick) {
+            li.classList.toggle('completed');
+            if (li.classList.contains('completed')) {
+                taskList.appendChild(li); // 完成任务移动到列表底部
+            } else {
+                taskList.insertBefore(li, taskList.firstChild); // 未完成任务移动到列表顶部
+            }
+            saveTasks();
+        }
     });
 
     // 将新任务插入到列表的最前面
     taskList.insertBefore(li, taskList.firstChild);
+}
+
+// 删除任务
+function deleteTask(li) {
+    const taskList = document.getElementById('taskList');
+    taskList.removeChild(li);
+    saveTasks();
 }
 
 // 保存任务到 LocalStorage
