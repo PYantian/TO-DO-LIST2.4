@@ -50,6 +50,7 @@ function addTask(taskText, isCompleted = false) {
         touchStartX = touch.clientX;
         touchStartY = touch.clientY;
         isClick = true; // 标记为点击事件
+        li.classList.remove('swiped'); // 移除滑动状态
     });
 
     li.addEventListener('touchend', function(e) {
@@ -68,10 +69,12 @@ function addTask(taskText, isCompleted = false) {
             // 判断是左滑还是右滑
             if (diffX > 0) {
                 // 右滑
-                deleteTask(li);
+                li.classList.add('swiped'); // 添加滑动状态
+                setTimeout(() => deleteTask(li), 300); // 延迟删除任务，等待动画完成
             } else {
                 // 左滑
-                deleteTask(li);
+                li.classList.add('swiped'); // 添加滑动状态
+                setTimeout(() => deleteTask(li), 300); // 延迟删除任务，等待动画完成
             }
         }
 
